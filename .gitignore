@@ -1,0 +1,8 @@
+/packages
+/.paket
+/build
+/deploy
+/bin
+/obj
+*.fsx
+*.json

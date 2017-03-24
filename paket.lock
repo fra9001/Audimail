@@ -1,0 +1,21 @@
+NUGET
+  remote: https://www.nuget.org/api/v2
+    Aether (8.1.2)
+    Chiron (6.2.1)
+      Aether (>= 8.0.2 < 9.0)
+      FParsec (>= 1.0 < 2.0)
+    FAKE (4.48)
+    FParsec (1.0.2)
+    FSharp.Control.AsyncSeq (2.0.10)
+    FSharp.Core (4.0.0.1)
+    FSharp.Data (2.3.2)
+      Zlib.Portable (>= 1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
+    FSharpx.Async (1.13)
+      FSharp.Control.AsyncSeq
+      FSharp.Core
+    FSharpx.Collections (1.15.2)
+      FSharp.Core
+    FSharpx.Extras (2.2)
+      FSharpx.Async
+      FSharpx.Collections
+    Zlib.Portable (1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
