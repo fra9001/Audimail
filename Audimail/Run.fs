@@ -1,8 +1,5 @@
-namespace Audimail.Test
+namespace Audimail
 
-open Audimail.Configurazione
-open Audimail.IO
-open Audimail.Html
 open FSharp.Data
 open FSharpx
 
@@ -35,7 +32,7 @@ module Choice =
     let iter f xs =
         ignore <!> Choice.mapM f xs
 
-module TestRun =
+module Run =
     open FSharpx.Choice
     let configuredExecutable p o cs =
         { Path = p; Output = o; Configs = cs }
@@ -60,7 +57,7 @@ module TestRun =
     open FSharpx.Reader
     
     let createPathsFromNames dir =
-        List.map (fun n -> IO.createPath dir n None)
+        List.map (Dir.simpleFile dir)
         <!> Reader.asks (fun (m:Mail) -> m.Files)
     
     let htmlfiles dir =
@@ -99,11 +96,10 @@ module TestRun =
         |> Choice.mapM (execute dest t.Results t.Program.Directories)
     
     let createPath ext =
-        reader {
-            let! (h:HtmlFile) = Reader.ask
-            return IO.createPath h.Dest h.Title (Some ext)
-        }
-
+        Dir.file (Some ext)
+        <!> Reader.asks (fun (h:HtmlFile) -> h.Dest)
+        <*> Reader.asks (fun h -> h.Title)
+    
     let writeMail ext =
         IO.write'
         <!> createPath ext
@@ -116,10 +112,8 @@ module TestRun =
         }
     
     let log path =
-        reader {
-            let! (r:Result) = Reader.ask
-            return r.Log |> Choice.iter (fun l -> IO.append' path l)
-        }
+        Choice.iter (IO.append' path)
+        <!> Reader.asks (fun (r:Result) -> r.Log)
     
     let writeThenLog path =
         writeMails *> log path

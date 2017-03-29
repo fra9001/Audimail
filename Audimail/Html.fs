@@ -1,6 +1,5 @@
-namespace Audimail.Html
+namespace Audimail
 
-open Audimail.Configurazione
 open FSharp.Data
 
 module Html =

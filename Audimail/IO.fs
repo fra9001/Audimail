@@ -1,9 +1,8 @@
-namespace Audimail.IO
+namespace Audimail
 
 open System
 open System.IO
 open System.Diagnostics
-open Audimail.Configurazione
 open FSharpx
 
 type IOError = BadPath of Dir
@@ -47,11 +46,6 @@ module IO =
     /// writes a text to a destination
     let write (Dir dest) text =
         File.WriteAllText (dest, text)
-    
-    /// creates a path from a directory, and an optional extension
-    let createPath (Dir dest) name = function
-        | Some ext -> Dir (sprintf "%s%s.%s" dest name ext)
-        | None -> Dir (sprintf "%s%s" dest name)
 
     /// executes a IO function catching the error
     let safeIO f a =

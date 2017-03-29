@@ -2,24 +2,38 @@
 #r "./packages/FAKE/tools/FakeLib.dll"
 
 open Fake
+open Fake.Testing.XUnit2
 
 // Directories
 let buildDir  = "./build/"
+let testDir = "./test/"
 let deployDir = "./deploy/"
 
 // Filesets
 let appReferences  =
-    !! "/**/*.csproj"
-    ++ "/**/*.fsproj"
+    !! "/**/*.fsproj"
 
 // Targets
 Target "Clean" (fun _ ->
-    CleanDirs [buildDir; deployDir]
+    CleanDirs [buildDir; deployDir; testDir]
 )
 
-Target "Build" (fun _ ->
-    MSBuildDebug buildDir "Build" appReferences
+Target "Debug" (fun _ ->
+    appReferences
+    |> MSBuildDebug testDir "Build"
+    |> Log "TestBuild-Output: "
+)
+
+Target "Release" (fun _ ->
+    appReferences
+    -- "/**/*Test.fsproj"
+    |> MSBuildRelease buildDir "Build" 
     |> Log "AppBuild-Output: "
+)
+
+Target "Test" (fun _ ->
+    !! (testDir @@ "*Test.dll")
+    |> xUnit2 (fun p -> { p with HtmlOutputPath = Some (testDir @@ "xunit.html") })
 )
 
 Target "Deploy" (fun _ ->
@@ -30,8 +44,10 @@ Target "Deploy" (fun _ ->
 
 // Build order
 "Clean"
-  ==> "Build"
+  ==> "Debug"
+  ==> "Test"
+  ==> "Release"
   ==> "Deploy"
 
 // start build
-RunTargetOrDefault "Build"
+RunTargetOrDefault "Test"

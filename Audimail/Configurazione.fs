@@ -1,4 +1,4 @@
-namespace Audimail.Configurazione
+namespace Audimail
 
 open Chiron
 open Chiron.Operators
@@ -38,11 +38,11 @@ type Mail =
         <!> Json.read "titolo" 
         <*> Json.read "files"
 
-type Result =
+type Output =
     { Base: Dir
       Mails: Mail list }
     with
-    static member FromJson (_:Result) =
+    static member FromJson (_:Output) =
             fun b m ->
                { Base = (Dir b); Mails = m}
         <!> Json.read "base" 
@@ -51,7 +51,7 @@ type Result =
 type Test =
     { Name: string
       Program: Program
-      Results: Result list }
+      Results: Output list }
     with
     static member FromJson (_:Test) =
             fun t p c ->
@@ -78,3 +78,18 @@ module Config =
     let parse (content:string) : Config =
         content
         |> (Json.parse >> Json.deserialize)
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Dir =
+    
+    /// creates a path from a directory, and an optional extension
+    let file ext (Dir d) s =
+        match ext with
+        | Some e -> 
+            sprintf "%s%s.%s" d s e
+            |> Dir
+        | None ->
+            sprintf "%s%s" d s
+            |> Dir
+    
+    let simpleFile d s = file None d s

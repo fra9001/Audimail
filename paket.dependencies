@@ -4,3 +4,6 @@ nuget FAKE
 nuget FSharp.Core
 nuget FSharp.Data
 nuget FSharpx.Extras
+nuget FsUnit
+nuget FsUnit.Xunit
+nuget xunit.runner.console

@@ -1,7 +1,5 @@
 open System
-open Audimail.Configurazione
-open Audimail.IO
-open Audimail.Test
+open Audimail
 open FSharpx
 
 let first = function
@@ -47,5 +45,5 @@ let main argv =
     <!> first argv
     >>= step IO.read'
     >>= parse
-    >>= step TestRun.test
+    >>= step Run.test
     |> report
