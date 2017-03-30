@@ -5,14 +5,37 @@ open System.IO
 open System.Diagnostics
 open FSharpx
 
-type IOError = BadPath of Dir
-             | FileNotExisting of Dir
-             | FileUnreacheable of Dir * string
-             | Error of Dir * string
+type IOError<'a> = BadPath of 'a
+                 | FileNotExisting of 'a
+                 | FileUnreacheable of 'a * string
+                 | Error of 'a * string
 
 module IO =
+    // not for actual use
+    type Dir = Dir of string
+
+    /// operator constructor for Dir
+    let (!!) s =
+        if Directory.Exists(s) || File.Exists(s)
+            then Dir s
+            else failwith "Dir not existing"
+    
+    let get (Dir d) = d
+
+    /// creates a path from a directory, and an optional extension
+    let file ext (Dir d) s =
+        match ext with
+        | Some e -> 
+            sprintf "%s%s.%s" d s e
+            |> Dir
+        | None ->
+            sprintf "%s%s" d s
+            |> Dir
+    
+    let simpleFile = file None
+
     /// gets the files within a specific directory, filtering with a regexp
-    let getFiles filter (Dir dir)=
+    let getFiles filter (Dir dir) =
         Directory.GetFiles (dir, filter)
         |> Array.map (Dir)
         |> Array.toList

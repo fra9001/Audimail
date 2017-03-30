@@ -3,17 +3,16 @@ namespace Audimail
 open Chiron
 open Chiron.Operators
 open FSharpx
-
-type Dir = Dir of string
+open Audimail.IO
 
 type Executable = 
-    {  Path: Dir
+    {  Path: IO.Dir
        Extension: string
        Output: string }
     with
     static member FromJson (_:Executable) =
             fun p e o ->
-                { Path = (Dir p); Extension = e; Output = o}
+                { Path = (!! p); Extension = e; Output = o}
         <!> Json.read "path"
         <*> Json.read "estensione"
         <*> Json.read "output"
@@ -24,7 +23,7 @@ type Program =
     with
     static member FromJson (_:Program) =
             fun d e ->
-                { Directories = List.map (Dir) d; Executables = e}
+                { Directories = List.map (!!) d; Executables = e}
         <!> Json.read "directory"
         <*> Json.read "eseguibili"
 
@@ -39,7 +38,7 @@ type Mail =
         <*> Json.read "files"
 
 type Output =
-    { Base: Dir
+    { Base: IO.Dir
       Mails: Mail list }
     with
     static member FromJson (_:Output) =
@@ -78,18 +77,3 @@ module Config =
     let parse (content:string) : Config =
         content
         |> (Json.parse >> Json.deserialize)
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Dir =
-    
-    /// creates a path from a directory, and an optional extension
-    let file ext (Dir d) s =
-        match ext with
-        | Some e -> 
-            sprintf "%s%s.%s" d s e
-            |> Dir
-        | None ->
-            sprintf "%s%s" d s
-            |> Dir
-    
-    let simpleFile d s = file None d s

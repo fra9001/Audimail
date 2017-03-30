@@ -18,11 +18,11 @@ let cprintf c fmt =
         ) fmt
 
 let mapError = function
-    | BadPath (Dir d) -> sprintf "Bad Path: %s" d
-    | FileNotExisting (Dir d) -> sprintf "File Not Existing: %s" d
-    | FileUnreacheable (Dir d, msg) ->
-        sprintf "File Unreacheable: %s\nMessage: %s" d msg
-    | Error (Dir d, msg) -> sprintf "Error: %s\nMessage: %s" d msg
+    | BadPath d -> sprintf "Bad Path: %s" (IO.get d)
+    | FileNotExisting d -> sprintf "File Not Existing: %s" (IO.get d)
+    | FileUnreacheable (d, msg) ->
+        sprintf "File Unreacheable: %s\nMessage: %s" (IO.get d) msg
+    | Error (d, msg) -> sprintf "Error: %s\nMessage: %s" (IO.get d) msg
 
 let report = function
     | Choice1Of2 _ -> 0
@@ -38,10 +38,11 @@ let step f x =
     |> Choice.mapSecond mapError
 
 open FSharpx.Choice
+open Audimail.IO
 
 [<EntryPoint>]
 let main argv =
-    Dir
+    (!!)
     <!> first argv
     >>= step IO.read'
     >>= parse

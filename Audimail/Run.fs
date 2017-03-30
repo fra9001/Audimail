@@ -5,13 +5,13 @@ open FSharpx
 
 type HtmlFile =
     { Title: string
-      Dest: Dir
+      Dest: IO.Dir
       Content: HtmlDocument }
 
 type ConfiguredExecutable =
-    { Path: Dir
+    { Path: IO.Dir
       Output: string
-      Configs: Dir list }
+      Configs: IO.Dir list }
 
 type Execution =
     { Output: string
@@ -57,7 +57,7 @@ module Run =
     open FSharpx.Reader
     
     let createPathsFromNames dir =
-        List.map (Dir.simpleFile dir)
+        List.map (IO.simpleFile dir)
         <!> Reader.asks (fun (m:Mail) -> m.Files)
     
     let htmlfiles dir =
@@ -96,7 +96,7 @@ module Run =
         |> Choice.mapM (execute dest t.Results t.Program.Directories)
     
     let createPath ext =
-        Dir.file (Some ext)
+        IO.file (Some ext)
         <!> Reader.asks (fun (h:HtmlFile) -> h.Dest)
         <*> Reader.asks (fun h -> h.Title)
     

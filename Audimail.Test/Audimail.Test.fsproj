@@ -93,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Compile Include="ConfigurazioneTest.fs" />
     <Compile Include="HtmlTest.fs" />
     <Compile Include="IOTest.fs" />
     <Compile Include="RunTest.fs" />
