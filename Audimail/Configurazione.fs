@@ -2,7 +2,6 @@ namespace Audimail
 
 open Chiron
 open Chiron.Operators
-open FSharpx
 open Audimail.IO
 
 type Executable = 

@@ -71,4 +71,4 @@ module ``Run Tests: ``
         let data =
             htmlFile "" empty (HtmlDocument.New ([]))
         writeMail "" data
-        |> should be (choice 2)
+        |> should be (choice 2) //TODO: test vero

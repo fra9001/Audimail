@@ -5,11 +5,6 @@ open System.IO
 open System.Diagnostics
 open FSharpx
 
-type IOError<'a> = BadPath of 'a
-                 | FileNotExisting of 'a
-                 | FileUnreacheable of 'a * string
-                 | Error of 'a * string
-
 module IO =
     // not for actual use
     type Dir = Dir of string
@@ -18,19 +13,17 @@ module IO =
     let (!!) s =
         if Directory.Exists(s) || File.Exists(s)
             then Dir s
-            else failwith "Dir not existing"
+            else failwith (sprintf "Dir %s not existing" s)
     
-    let get (Dir d) = d
-
     /// creates a path from a directory, and an optional extension
     let file ext (Dir d) s =
-        match ext with
-        | Some e -> 
-            sprintf "%s%s.%s" d s e
-            |> Dir
-        | None ->
-            sprintf "%s%s" d s
-            |> Dir
+        let name =
+            match ext with
+            | Some e -> 
+                sprintf "%s%s.%s" d s e
+            | None ->
+                sprintf "%s%s" d s
+        Dir name
     
     let simpleFile = file None
 
@@ -76,10 +69,7 @@ module IO =
             let res = f a
             Choice1Of2 res
         with
-        | :? ArgumentException as ae -> Choice2Of2 (BadPath a)
-        | :? FileNotFoundException as ff -> Choice2Of2 (FileNotExisting a)
-        | :? IOException as ie -> Choice2Of2 (FileUnreacheable (a, ie.Message))
-        | e -> Choice2Of2 (Error (a, e.Message))
+        | e -> Choice2Of2 e
 
     /// executes a IO function with 2 params
     let safeIO2 f a b =

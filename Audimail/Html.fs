@@ -10,14 +10,12 @@ module Html =
 
     /// combines two documents appending the bodies left -> right
     let merge left right =
-        HtmlDocument.New(seq {
-            yield HtmlNode.NewElement("html", seq {
-                yield HtmlNode.NewElement("body",
+        HtmlDocument.New(
+            [HtmlNode.NewElement("html",
+                [HtmlNode.NewElement("body",
                     [left;right]
                     |> List.collect body
-                )
-            })
-        })
+                )])])
 
     /// escapes some strings
     let toString' x =
