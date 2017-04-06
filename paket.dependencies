@@ -1,9 +1,15 @@
 source https://www.nuget.org/api/v2
 nuget Chiron
-nuget FAKE
 nuget FSharp.Core
 nuget FSharp.Data
 nuget FSharpx.Extras
+
+group Build
+source https://www.nuget.org/api/v2
+nuget xunit.runner.console
+nuget FAKE
+
+group Test
+source https://www.nuget.org/api/v2
 nuget FsUnit
 nuget FsUnit.Xunit
-nuget xunit.runner.console

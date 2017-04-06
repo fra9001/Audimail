@@ -1,6 +1,6 @@
 FSharp.Core
 Chiron
 FSharp.Data
-xunit.runner.console
-FsUnit.Xunit
 FSharpx.Extras
+group Test
+FsUnit.Xunit
