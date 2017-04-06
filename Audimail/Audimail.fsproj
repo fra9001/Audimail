@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Compile Include="Choice.fs" />
     <Compile Include="IO.fs" />
     <Compile Include="Configurazione.fs" />
     <Compile Include="Html.fs" />

@@ -1,13 +1,14 @@
-namespace Audimail
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Config
 
 open Chiron
 open Chiron.Operators
-open Audimail.IO
+open IO
 
 type Executable = 
-    {  Path: IO.Dir
-       Extension: string
-       Output: string }
+    { Path: Dir
+      Extension: string
+      Output: string }
     with
     static member FromJson (_:Executable) =
             fun p e o ->
@@ -37,7 +38,7 @@ type Mail =
         <*> Json.read "files"
 
 type Output =
-    { Base: IO.Dir
+    { Base: Dir
       Mails: Mail list }
     with
     static member FromJson (_:Output) =
@@ -70,9 +71,7 @@ type Config =
         return { Tests = t; Log = Dir (sprintf "%s%s" d l); Dest = (Dir d)}
     }
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Config =
-    /// parse the content of the JSON file, unsafe
-    let parse (content:string) : Config =
-        content
-        |> (Json.parse >> Json.deserialize)
+/// parse the content of the JSON file, unsafe
+let parse (content:string) : Config =
+    content
+    |> (Json.parse >> Json.deserialize)

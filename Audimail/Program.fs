@@ -1,5 +1,5 @@
 open System
-open Audimail
+open Run
 open FSharpx
 
 let first = function
@@ -22,7 +22,7 @@ let report = function
     | Choice2Of2 (e:exn) -> cprintf (ConsoleColor.Red) "%s\n" e.Message; 1
 
 open FSharpx.Choice
-open Audimail.IO
+open IO
 
 [<EntryPoint>]
 let main argv =
