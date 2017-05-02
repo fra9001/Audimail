@@ -12,8 +12,7 @@ type HtmlFile =
       Content: HtmlDocument }
 
 type ConfiguredExecutable =
-    { Path: Dir
-      Output: string
+    { Executable: Executable
       Configs: Dir list }
 
 type Execution =
@@ -21,31 +20,21 @@ type Execution =
       Log: string list }
 
 type Result =
-    { Output: string
-      Log: string list
+    { Execution: Execution
       Files: HtmlFile list }
 
-
 open FSharpx.Choice
-let configuredExecutable p o cs =
-    { Path = p; Output = o; Configs = cs }
-
-let execution o ls : Execution =
-    { Output = o; Log = ls }
 
 let htmlFile t d c =
     { Title = t; Dest = d; Content = c }
 
-let result o ls fs =
-    { Output = o; Log = ls; Files = fs }
-
-let configureExe dirs (e:Executable) =
-    configuredExecutable e.Path e.Output
-    <!> Choice.collect (IO.getFiles' e.Extension) dirs
+let configureExe dirs e =
+        fun cs -> { Executable = e; Configs = cs }
+    <!> Choice.collect (Choice.protect (IO.getFiles e.Extension)) dirs
     
 let runExec (c:ConfiguredExecutable) =
-    execution c.Output
-    <!> Choice.mapM (IO.exec' c.Path) c.Configs
+        fun ls -> { Output = c.Executable.Output; Log = ls }
+    <!> Choice.mapM (Choice.protect (IO.exec c.Executable.Path)) c.Configs
 
 open FSharpx.Reader
 
@@ -54,7 +43,7 @@ let createPathsFromNames dir =
     <!> Reader.asks (fun (m:Mail) -> m.Files)
 
 let htmlfiles dir =
-    Choice.mapM IO.read'
+    Choice.mapM (Choice.protect IO.read)
     <!> createPathsFromNames dir
 
 let htmldocs dir =
@@ -73,8 +62,8 @@ let parse dest { Base = dir; Mails = ms } =
 
 open FSharpx.Choice
 
-let getFilesForEveryExec dest rs (e:Execution) =
-    result e.Output e.Log
+let getFilesForEveryExec dest rs e =
+        fun fs -> { Execution = e; Files = fs }
     <!> (rs |> Choice.collect (parse dest))
 
 let execute dest rs ds (e:Executable) =
@@ -94,19 +83,19 @@ let createPath ext =
     <*> Reader.asks (fun h -> h.Title)
 
 let writeMail ext =
-    IO.write'
+        fun p c -> Choice.protect (IO.write p) c
     <!> createPath ext
     <*> (Html.toString' <!> Reader.asks (fun f -> f.Content))
 
 let writeMails =
     reader {
         let! (r:Result) = Reader.ask
-        return r.Files |> Choice.iter (writeMail r.Output)
+        return r.Files |> Choice.iter (writeMail r.Execution.Output)
     }
 
 let log path =
-    Choice.iter (IO.append' path)
-    <!> Reader.asks (fun (r:Result) -> r.Log)
+    Choice.iter (Choice.protect (IO.append path))
+    <!> Reader.asks (fun (r:Result) -> r.Execution.Log)
 
 let writeThenLog path =
     writeMails *> log path
@@ -114,7 +103,7 @@ let writeThenLog path =
 open FSharpx.Choice
 
 let test { Tests = ts; Log = log; Dest = discoI } =
-    IO.clearFile' log
+    Choice.protect IO.clearFile log
     >>. Choice.returnM ts
     >>= Choice.collect (executeTest discoI)
     >>= Choice.iter (writeThenLog log)

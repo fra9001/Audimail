@@ -50,4 +50,4 @@ Target "Deploy" (fun _ ->
   ==> "Deploy"
 
 // start build
-RunTargetOrDefault "Test"
+RunTargetOrDefault "Deploy"

@@ -26,9 +26,9 @@ let file ext (Dir d) s =
 
 let simpleFile = file None
 
-/// gets the files within a specific directory, filtering with a regexp
-let getFiles filter (Dir dir) =
-    Directory.GetFiles (dir, filter)
+/// gets the files within a specific directory, filtering with a searchPattern
+let getFiles searchPattern (Dir dir) =
+    Directory.GetFiles (dir, searchPattern)
     |> Array.map (Dir)
     |> Array.toList
 
@@ -45,7 +45,7 @@ let exec (Dir program) (Dir config) =
     p.WaitForExit()
     log p.ExitCode
 
-/// clear a file
+/// clears a file
 let clearFile (Dir file) =
     use stream = File.OpenWrite (file)
     use writer = new StreamWriter(stream)
@@ -61,25 +61,3 @@ let append (Dir dest) text =
 /// writes a text to a destination
 let write (Dir dest) text =
     File.WriteAllText (dest, text)
-
-/// executes a IO function catching the error
-let safeIO f a =
-    try
-        let res = f a
-        Choice1Of2 res
-    with
-    | e -> Choice2Of2 e
-
-/// executes a IO function with 2 params
-let safeIO2 f a b =
-    safeIO (fun a' -> f a' b) a
-
-// safe versions
-
-let clearFile', read' = (safeIO clearFile), (safeIO read)
-
-let append', write', exec' =
-    (safeIO2 append), (safeIO2 write), (safeIO2 exec)
-
-let getFiles' e d =
-    safeIO (getFiles e) d

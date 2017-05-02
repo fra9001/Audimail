@@ -15,7 +15,7 @@ let ``configureExe creates a ConfiguredExecutable`` () =
 
 [<Fact>]
 let ``runExec creates a Execution`` () =
-    runExec ({Path=empty;Output="foo";Configs=[]})
+    runExec ({Executable={Path=Dir "";Extension="";Output=""};Configs=[]})
     |> should be (choice 1)
 
 [<Fact>]
@@ -45,7 +45,7 @@ let ``parse gets all the files for every Mail`` () =
 
 [<Fact>]
 let ``getFilesForEveryExec gets the files for every Execution`` () =
-    let data = execution "" []
+    let data = { Output = ""; Log = [] }
     getFilesForEveryExec empty [] data
     |> should be (choice 1)
 

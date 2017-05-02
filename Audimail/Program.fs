@@ -1,6 +1,4 @@
 open System
-open Run
-open FSharpx
 
 let first = function
     | [||] -> Choice2Of2 (exn "Missing Argument")
@@ -27,8 +25,8 @@ open IO
 [<EntryPoint>]
 let main argv =
     first argv
-    >>= Choice.protect (!!)
-    >>= IO.read'
-    >>= Choice.protect Config.parse
+    >>= protect (!!)
+    >>= protect read
+    >>= protect Config.parse
     >>= Run.test
     |> report
