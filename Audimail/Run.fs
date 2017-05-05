@@ -32,7 +32,7 @@ let configureExe dirs e =
         fun cs -> { Executable = e; Configs = cs }
     <!> Choice.collect (Choice.protect (IO.getFiles e.Extension)) dirs
     
-let runExec (c:ConfiguredExecutable) =
+let runExec c =
         fun ls -> { Output = c.Executable.Output; Log = ls }
     <!> Choice.mapM (Choice.protect (IO.exec c.Executable.Path)) c.Configs
 
@@ -66,7 +66,7 @@ let getFilesForEveryExec dest rs e =
         fun fs -> { Execution = e; Files = fs }
     <!> (rs |> Choice.collect (parse dest))
 
-let execute dest rs ds (e:Executable) =
+let execute dest rs ds e =
     configureExe ds e
     >>= runExec
     >>= getFilesForEveryExec dest rs
@@ -78,9 +78,10 @@ let executeTest dest (t:Test) =
     |> Choice.mapM (execute dest t.Results t.Program.Directories)
 
 let createPath ext =
-    IO.file (Some ext)
-    <!> Reader.asks (fun (h:HtmlFile) -> h.Dest)
-    <*> Reader.asks (fun h -> h.Title)
+    reader {
+        let! h = Reader.ask
+        return IO.file (Some ext) h.Dest h.Title
+    }
 
 let writeMail ext =
         fun p c -> Choice.protect (IO.write p) c
@@ -89,13 +90,13 @@ let writeMail ext =
 
 let writeMails =
     reader {
-        let! (r:Result) = Reader.ask
+        let! r = Reader.ask
         return r.Files |> Choice.iter (writeMail r.Execution.Output)
     }
 
 let log path =
     Choice.iter (Choice.protect (IO.append path))
-    <!> Reader.asks (fun (r:Result) -> r.Execution.Log)
+    <!> Reader.asks (fun r -> r.Execution.Log)
 
 let writeThenLog path =
     writeMails *> log path
