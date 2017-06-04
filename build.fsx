@@ -5,9 +5,7 @@ open Fake
 open Fake.Testing.XUnit2
 
 // Directories
-let buildDir  = "./build/"
-let testDir = "./test/"
-let deployDir = "./deploy/"
+let buildDir, testDir, deployDir  = "./build/", "./test/", "./deploy/"
 
 // Filesets
 let appReferences  =
@@ -21,14 +19,14 @@ Target "Clean" (fun _ ->
 Target "Debug" (fun _ ->
     appReferences
     |> MSBuildDebug testDir "Build"
-    |> Log "TestBuild-Output: "
+    |> Log "Debug-Output: "
 )
 
 Target "Release" (fun _ ->
     appReferences
     -- "/**/*Test.fsproj"
     |> MSBuildRelease buildDir "Build" 
-    |> Log "AppBuild-Output: "
+    |> Log "Release-Output: "
 )
 
 Target "Test" (fun _ ->
