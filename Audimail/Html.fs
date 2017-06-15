@@ -8,7 +8,7 @@ let body doc =
     |> HtmlNode.elements
 
 /// combines two documents appending the bodies left -> right
-let merge left right =
+let (</>) left right =
     HtmlDocument.New(
         [HtmlNode.NewElement("html",
             [HtmlNode.NewElement("body",
@@ -30,7 +30,7 @@ let loadFiles = List.map load
 /// merges a list of documents into one
 let mergeFiles = function
     | [] -> HtmlDocument.New([])
-    | fs -> List.reduce (merge) fs
+    | fs -> List.reduce (</>) fs
 
 /// loads and merges a list of documents
 let loadAndMerge fs =
