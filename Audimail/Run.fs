@@ -1,110 +1,68 @@
 module Run
 
-open FSharp.Data
 open FSharpx
 open Config
-open IO
-open Choice
 
 type HtmlFile =
     { Title: string
-      Dest: Dir
-      Content: HtmlDocument }
-
-type ConfiguredExecutable =
-    { Executable: Executable
-      Configs: Dir list }
-
-type Execution =
-    { Output: string
-      Log: string list }
+      Dest: IO.Dir
+      Content: FSharp.Data.HtmlDocument }
 
 type Result =
-    { Execution: Execution
+    { Output: string
+      Log: string list
       Files: HtmlFile list }
 
-open FSharpx.Choice
-
+/// constructor for HtmlFile
 let htmlFile t d c =
     { Title = t; Dest = d; Content = c }
 
-let configureExe dirs e =
-        fun cs -> { Executable = e; Configs = cs }
-    <!> Choice.collect (Choice.protect (IO.getFiles e.Extension)) dirs
+/// compares the filename and an optional name of file
+let (!=) file path =
+    match file with
+    | Some name -> (IO.name path) <> name
+    | None -> true
+
+let getFiles ext =
+    Choice.collect (IO.getFiles ext)
     
-let runExec c =
-        fun ls -> { Output = c.Executable.Output; Log = ls }
-    <!> Choice.mapM (Choice.protect (IO.exec c.Executable.Path)) c.Configs
+let execute path =
+    Choice.mapM (IO.exec path)
 
-open FSharpx.Reader
-
-let createPathsFromNames dir =
-    List.map (IO.simpleFile dir)
-    <!> Reader.asks (fun (m:Mail) -> m.Files)
-
-let htmlfiles dir =
-    Choice.mapM (Choice.protect IO.read)
-    <!> createPathsFromNames dir
-
-let htmldocs dir =
-    Choice.map Html.loadAndMerge
-    <!> htmlfiles dir
-
-let files dest dir =
-    reader {
-        let! (m:Mail) = Reader.ask
-        let doc = htmldocs dir m
-        return Choice.map (htmlFile m.Title dest) doc
-    }
-
-let parse dest { Base = dir; Mails = ms } =
-    ms |> Choice.mapM (files dest dir)
+/// read and parse all the html files
+let readAndParse dest { Base = dir; Mails = ms } =
+    Choice.mapM (fun { Title = t; Files = fs} ->
+        fs
+        |> Choice.mapM ((IO.simpleFile dir) >> IO.read)
+        |> Choice.map (Html.loadFiles >> Html.mergeFiles >> (htmlFile t dest))
+    ) ms
 
 open FSharpx.Choice
 
-let getFilesForEveryExec dest rs e =
-        fun fs -> { Execution = e; Files = fs }
-    <!> (rs |> Choice.collect (parse dest))
-
-let execute dest rs ds e =
-    configureExe ds e
-    >>= runExec
-    >>= getFilesForEveryExec dest rs
-
-open FSharpx.Reader
+/// executes the program and saves the output and log
+let result dest rs ds (e:Executable) =
+        fun ls fs -> { Output = e.Output;Log = ls;Files = fs }
+    <!> (List.filter (fun f -> e.Except != f)
+        <!> getFiles e.Extension ds
+        >>= execute e.Path)
+    <*> Choice.collect (readAndParse dest) rs
 
 let executeTest dest (t:Test) =
     t.Program.Executables
-    |> Choice.mapM (execute dest t.Results t.Program.Directories)
+    |> Choice.mapM (result dest t.Results t.Program.Directories)
 
-let createPath ext =
-    reader {
-        let! h = Reader.ask
-        return IO.file (Some ext) h.Dest h.Title
-    }
+let writeMails ext fs =
+    Choice.iter (fun h ->
+        let path = IO.file (Some ext) h.Dest h.Title
+        IO.write path (Html.toString h.Content)
+    ) fs
 
-let writeMail ext =
-        fun p c -> Choice.protect (IO.write p) c
-    <!> createPath ext
-    <*> (Html.toString' <!> Reader.asks (fun f -> f.Content))
-
-let writeMails =
-    reader {
-        let! r = Reader.ask
-        return r.Files |> Choice.iter (writeMail r.Execution.Output)
-    }
-
-let log path =
-    Choice.iter (Choice.protect (IO.append path))
-    <!> Reader.asks (fun r -> r.Execution.Log)
-
-let writeThenLog path =
-    writeMails *> log path
-
-open FSharpx.Choice
+let writeThenLog path r =
+    writeMails r.Output r.Files
+    >>. Choice.iter (IO.append path) r.Log
 
 let test { Tests = ts; Log = log; Dest = discoI } =
-    Choice.protect IO.clearFile log
+    IO.clearFile log
     >>. Choice.returnM ts
     >>= Choice.collect (executeTest discoI)
     >>= Choice.iter (writeThenLog log)

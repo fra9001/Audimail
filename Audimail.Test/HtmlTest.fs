@@ -25,9 +25,9 @@ let ``merge unites two htmldocuments bodies into one`` () =
 
 [<Fact>]
 let ``toString' remove unwanted unicode spaces and bad html tags`` () =
-    toString' (HtmlNode.NewElement("title"))
+    toString (HtmlNode.NewElement("title"))
     |> should equal ""
-    toString' (HtmlNode.NewElement("span", [HtmlNode.NewText(" ")]))
+    toString (HtmlNode.NewElement("span", [HtmlNode.NewText(" ")]))
     |> should equal "<span>&nbsp;</span>"
 
 [<Fact>]

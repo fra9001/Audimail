@@ -26,7 +26,7 @@ open IO
 let main argv =
     first argv
     >>= protect (!!)
-    >>= protect read
+    >>= read
     >>= protect Config.parse
     >>= Run.test
     |> report

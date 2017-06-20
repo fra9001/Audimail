@@ -17,7 +17,7 @@ let merge left right =
             )])])
 
 /// escapes some strings
-let toString' x =
+let toString x =
     // occhio che questi spazi non sono uguali
     x.ToString().Replace(" ", "&nbsp;").Replace("<title />", "")
 
@@ -31,9 +31,3 @@ let loadFiles = List.map load
 let mergeFiles = function
     | [] -> HtmlDocument.New([])
     | fs -> List.reduce (merge) fs
-
-/// loads and merges a list of documents
-let loadAndMerge fs =
-    fs
-    |> loadFiles
-    |> mergeFiles

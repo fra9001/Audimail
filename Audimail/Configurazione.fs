@@ -8,14 +8,16 @@ open IO
 type Executable = 
     { Path: Dir
       Extension: string
-      Output: string }
+      Output: string
+      Except: string option }
     with
     static member FromJson (_:Executable) =
-            fun p e o ->
-                { Path = (!! p); Extension = e; Output = o}
+            fun p e o e' ->
+                { Path = (!! p); Extension = e; Output = o; Except = e'}
         <!> Json.read "path"
         <*> Json.read "estensione"
         <*> Json.read "output"
+        <*> Json.tryRead "eccetto"
 
 type Program =
     { Directories: Dir list

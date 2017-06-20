@@ -1,5 +1,6 @@
 module ``IO Tests: ``
 
+open FSharpx.Choice
 open Xunit
 open FsUnit.Xunit
 open IO
@@ -29,19 +30,24 @@ let ``file should create a filepath with the supplied parameters`` () =
 
 [<Fact>]
 let ``getFiles gets all files in a directory with the spedified filter`` () =
-    getFiles "*.*" (!! ".\\")
-    |> should not' (be Empty)
+    choose {
+        let! r = getFiles "*.*" (!! ".\\")
+        return r |> should not' (be Empty)
+    } |> ignore
 
 [<Fact>]
 let ``exec executes a program with the supplied arguments`` () =
-    exec (Dir "cmd") (Dir "/c echo foo")
-    |> should endWith "Return code: 0\n"
+    choose {
+        let! r = exec (Dir "cmd") (Dir "/c echo foo")
+        return r |> should endWith "Return code: 0\n"
+    } |> ignore
 
 [<Fact>]
 let ``clearFile deletes the content of a file`` () =
     writeFooFile ()
 
     clearFile (!! fooFile)
+    |> should be (choice 1)
 
     readFooFile ()
     |> should be NullOrEmptyString
@@ -49,16 +55,20 @@ let ``clearFile deletes the content of a file`` () =
 [<Fact>]
 let ``read gets all the content of a file`` () =
     writeFooFile()
-    read (!! fooFile)
-    |> should equal (readFooFile ())
+    choose {
+        let! r = read (!! fooFile)
+        return r |> should equal (readFooFile ())
+    } |> ignore
 
 [<Fact>]
 let ``append appends a text to a file`` () =
     append (Dir fooFile) "foo"
+    |> should be (choice 1)
     readFooFile() |> should equal "foo"
 
 [<Fact>]
 let ``write writes some test to a file, overwriting`` () =
     writeFooFile ()
     write (!! fooFile) "blah"
+    |> should be (choice 1)
     readFooFile () |> should not' (equal "foo")
