@@ -1,6 +1,7 @@
 module ``IO Tests: ``
 
 open FSharpx.Choice
+open System.IO
 open Xunit
 open FsUnit.Xunit
 open IO
@@ -8,12 +9,12 @@ open IO
 let fooFile = "C:\\Temp\\foo"
 
 let writeFooFile () =
-    System.IO.File.WriteAllText (fooFile, "foo")
+    File.WriteAllText (fooFile, "foo")
 
 let readFooFile () =
     let res =
-        System.IO.File.ReadAllText (fooFile)
-    System.IO.File.Delete (fooFile)
+        File.ReadAllText (fooFile)
+    File.Delete (fooFile)
     res
 
 [<Fact>]

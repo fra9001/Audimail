@@ -20,7 +20,7 @@ let ``body gets the body of a supplied htmldocument`` () =
 
 [<Fact>]
 let ``merge unites two htmldocuments bodies into one`` () =
-    merge (doc 1) (doc 1)
+    (doc 1) </> (doc 1)
     |> should equal (doc 2)
 
 [<Fact>]
