@@ -51,11 +51,11 @@ let executeTest dest (t:Test) =
     t.Program.Executables
     |> Choice.mapM (result dest t.Results t.Program.Directories)
 
-let writeMails ext fs =
+let writeMails ext =
     Choice.iter (fun h ->
         let path = IO.file (Some ext) h.Dest h.Title
         IO.write path (Html.toString h.Content)
-    ) fs
+    )
 
 let writeThenLog path r =
     writeMails r.Output r.Files

@@ -1,21 +1,24 @@
 module ``IO Tests: ``
 
 open FSharpx.Choice
-open System.IO
 open Xunit
 open FsUnit.Xunit
 open IO
 
+/// a temp file
+type TempFile(p:string) =
+    let path = p
+    with
+    member this.Text =
+        System.IO.File.ReadAllText (path)
+    member this.Write content =
+        System.IO.File.WriteAllText (path, content)
+    interface System.IDisposable with
+        member this.Dispose() =
+            if System.IO.File.Exists (path) then
+                System.IO.File.Delete (path)
+
 let fooFile = "C:\\Temp\\foo"
-
-let writeFooFile () =
-    File.WriteAllText (fooFile, "foo")
-
-let readFooFile () =
-    let res =
-        File.ReadAllText (fooFile)
-    File.Delete (fooFile)
-    res
 
 [<Fact>]
 let ``(!!) checks the path`` () =
@@ -45,31 +48,41 @@ let ``exec executes a program with the supplied arguments`` () =
 
 [<Fact>]
 let ``clearFile deletes the content of a file`` () =
-    writeFooFile ()
+    use file = new TempFile(fooFile)
+    file.Write "foo"
 
     clearFile (!! fooFile)
     |> should be (choice 1)
 
-    readFooFile ()
+    file.Text
     |> should be NullOrEmptyString
 
 [<Fact>]
 let ``read gets all the content of a file`` () =
-    writeFooFile()
+    use file = new TempFile(fooFile)
+    file.Write "foo"
     choose {
         let! r = read (!! fooFile)
-        return r |> should equal (readFooFile ())
+        return r |> should equal (file.Text)
     } |> ignore
 
 [<Fact>]
 let ``append appends a text to a file`` () =
+    use file = new TempFile(fooFile)
+
     append (Dir fooFile) "foo"
     |> should be (choice 1)
-    readFooFile() |> should equal "foo"
+
+    file.Text
+    |> should equal "foo"
 
 [<Fact>]
 let ``write writes some test to a file, overwriting`` () =
-    writeFooFile ()
+    use file = new TempFile(fooFile)
+    file.Write "foo"
+
     write (!! fooFile) "blah"
     |> should be (choice 1)
-    readFooFile () |> should not' (equal "foo")
+
+    file.Text
+    |> should not' (equal "foo")
