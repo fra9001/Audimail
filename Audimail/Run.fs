@@ -18,10 +18,13 @@ let htmlFile t d c =
     { Title = t; Dest = d; Content = c }
 
 /// compares the filename and an optional name of file
-let (!=) file path =
+let (==) file path =
     match file with
-    | Some name -> (IO.name path) <> name
+    | Some name ->
+        System.Text.RegularExpressions.Regex(name).IsMatch(IO.name path)
     | None -> true
+
+let (!=) file path = not (file == path)
 
 let getFiles ext =
     Choice.collect (IO.getFiles ext)
@@ -33,8 +36,8 @@ let execute path =
 let readAndParse dest { Base = dir; Mails = ms } =
     Choice.mapM (fun { Title = t; Files = fs} ->
         fs
-        |> Choice.mapM ((IO.simpleFile dir) >> IO.read)
-        |> Choice.map (Html.loadFiles >> Html.mergeFiles >> (htmlFile t dest))
+        |> Choice.mapM (IO.simpleFile dir >> IO.read)
+        |> Choice.map (Html.loadFiles >> Html.mergeFiles >> htmlFile t dest)
     ) ms
 
 open FSharpx.Choice

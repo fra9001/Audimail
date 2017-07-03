@@ -46,7 +46,7 @@
     <None Include="app.config" />
     <Compile Include="Choice.fs" />
     <Compile Include="IO.fs" />
-    <Compile Include="Configurazione.fs" />
+    <Compile Include="Config.fs" />
     <Compile Include="Html.fs" />
     <Compile Include="Run.fs" />
     <Compile Include="Program.fs" />
