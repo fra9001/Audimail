@@ -7,16 +7,14 @@ open IO
 
 /// a temp file
 type TempFile(p:string) =
-    let path = p
-    with
     member this.Text =
-        System.IO.File.ReadAllText (path)
+        System.IO.File.ReadAllText (p)
     member this.Write content =
-        System.IO.File.WriteAllText (path, content)
+        System.IO.File.WriteAllText (p, content)
     interface System.IDisposable with
         member this.Dispose() =
-            if System.IO.File.Exists (path) then
-                System.IO.File.Delete (path)
+            if System.IO.File.Exists (p) then
+                System.IO.File.Delete (p)
 
 let fooFile = "C:\\Temp\\foo"
 

@@ -19,12 +19,12 @@ let ``body gets the body of a supplied htmldocument`` () =
     |> should equal (HtmlNode.elements (body' 1))
 
 [<Fact>]
-let ``merge unites two htmldocuments bodies into one`` () =
+let ``</> unites two htmldocuments bodies into one`` () =
     (doc 1) </> (doc 1)
     |> should equal (doc 2)
 
 [<Fact>]
-let ``toString' remove unwanted unicode spaces and bad html tags`` () =
+let ``toString remove unwanted unicode spaces and bad html tags`` () =
     toString (HtmlNode.NewElement("title"))
     |> should equal ""
     toString (HtmlNode.NewElement("span", [HtmlNode.NewText(" ")]))

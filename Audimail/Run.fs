@@ -24,7 +24,7 @@ let (==) file path =
         System.Text.RegularExpressions.Regex(name).IsMatch(IO.name path)
     | None -> true
 
-let (!=) file path = not (file == path)
+let inline (!=) file path = not (file == path)
 
 let getFiles ext =
     Choice.collect (IO.getFiles ext)
