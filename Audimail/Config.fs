@@ -2,7 +2,7 @@
 module Config
 
 open Chiron
-open Chiron.Operators
+open Operators
 open IO
 
 type Executable = 

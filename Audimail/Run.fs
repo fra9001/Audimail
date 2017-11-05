@@ -40,7 +40,7 @@ let readAndParse dest { Base = dir; Mails = ms } =
         |> Choice.map (Html.loadFiles >> Html.mergeFiles >> htmlFile t dest)
     ) ms
 
-open FSharpx.Choice
+open Choice
 
 /// executes the program and saves the output and log
 let result dest rs ds (e:Executable) =
@@ -48,24 +48,24 @@ let result dest rs ds (e:Executable) =
     <!> (List.filter (fun f -> e.Except != f)
         <!> getFiles e.Extension ds
         >>= execute e.Path)
-    <*> Choice.collect (readAndParse dest) rs
+    <*> collect (readAndParse dest) rs
 
 let executeTest dest (t:Test) =
     t.Program.Executables
-    |> Choice.mapM (result dest t.Results t.Program.Directories)
+    |> mapM (result dest t.Results t.Program.Directories)
 
 let writeMails ext =
-    Choice.iter (fun h ->
+    iter (fun h ->
         let path = IO.file (Some ext) h.Dest h.Title
         IO.write path (Html.toString h.Content)
     )
 
 let writeThenLog path r =
     writeMails r.Output r.Files
-    >>. Choice.iter (IO.append path) r.Log
+    >>. iter (IO.append path) r.Log
 
 let test { Tests = ts; Log = log; Dest = discoI } =
     IO.clearFile log
     >>. Choice.returnM ts
-    >>= Choice.collect (executeTest discoI)
-    >>= Choice.iter (writeThenLog log)
+    >>= collect (executeTest discoI)
+    >>= iter (writeThenLog log)

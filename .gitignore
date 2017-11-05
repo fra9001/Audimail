@@ -5,6 +5,7 @@
 
 *.json
 /test/
+/deploy/
 
 ### fsharp ###
 lib/debug

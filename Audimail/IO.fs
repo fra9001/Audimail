@@ -1,6 +1,5 @@
 module IO
 
-open System
 open System.IO
 open System.Diagnostics
 open FSharpx
