@@ -4,19 +4,26 @@ open FSharpx.Choice
 open Xunit
 open FsUnit.Xunit
 open IO
+open System.IO
 
-/// a temp file
 type TempFile(p:string) =
+    let dir = Path.GetDirectoryName(p)
+    do
+        if not (Directory.Exists (dir)) then
+            Directory.CreateDirectory (dir) |> ignore
     member this.Text =
-        System.IO.File.ReadAllText (p)
+        File.ReadAllText (p)
     member this.Write content =
-        System.IO.File.WriteAllText (p, content)
+        File.WriteAllText (p, content)
     interface System.IDisposable with
         member this.Dispose() =
-            if System.IO.File.Exists (p) then
-                System.IO.File.Delete (p)
+            if File.Exists (p) then
+                File.Delete (p)
+            if Directory.Exists (dir) then
+                Directory.Delete (dir)
 
 let fooFile = "C:\\Temp\\foo"
+
 
 [<Fact>]
 let ``(!!) checks the path`` () =
