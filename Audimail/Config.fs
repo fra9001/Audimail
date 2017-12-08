@@ -1,4 +1,3 @@
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Config
 
 open Chiron
