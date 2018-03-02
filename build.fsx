@@ -31,7 +31,9 @@ Target "Release" (fun _ ->
 
 Target "Test" (fun _ ->
     !! (testDir @@ "*Test.dll")
-    |> xUnit2 (fun p -> { p with HtmlOutputPath = Some (testDir @@ "xunit.html") })
+    |> xUnit2 (fun p -> { p 
+                            with HtmlOutputPath = Some (testDir @@ "xunit.html")
+                                 Parallel = ParallelMode.All })
 )
 
 Target "Deploy" (fun _ ->

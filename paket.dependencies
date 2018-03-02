@@ -7,3 +7,4 @@ nuget FSharpx.Extras
 nuget xunit.runner.console
 nuget FAKE
 nuget FsUnit.Xunit
+nuget xunit.runner.visualstudio
