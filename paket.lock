@@ -6,7 +6,6 @@ NUGET
     Chiron (6.2.1)
       Aether (>= 8.0.2 < 9.0)
       FParsec (>= 1.0 < 2.0)
-    FAKE (5.2)
     FParsec (1.0.3)
       FSharp.Core (>= 4.0.0.1)
     FSharp.Control.AsyncSeq (2.0.21)
@@ -41,4 +40,3 @@ NUGET
     xunit.extensibility.execution (2.3.1) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
       xunit.extensibility.core (2.3.1)
     xunit.runner.console (2.4)
-    xunit.runner.visualstudio (2.4)
