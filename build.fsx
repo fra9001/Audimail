@@ -1,8 +1,9 @@
 #r "paket:
 nuget Fake.Core.Target
+nuget Fake.IO.FileSystem
+nuget Fake.DotNet.Paket
 nuget Fake.DotNet.MsBuild
-nuget Fake.DotNet.Testing.XUnit2
-nuget Fake.IO.FileSystem //"
+nuget Fake.DotNet.Testing.XUnit2 //"
 #load "./.fake/build.fsx/intellisense.fsx"
 
 open Fake.Core
@@ -16,6 +17,10 @@ let buildDir, testDir, deployDir = "./build/", "./test/", "./deploy/"
 let appReferences  =
     !! "./**/*.fsproj"
 
+Target.create "Restore" (fun _ ->
+    Paket.restore id
+)
+
 Target.create "Clean" (fun _ ->
     Shell.cleanDirs [buildDir; deployDir; testDir]
 )
@@ -23,14 +28,14 @@ Target.create "Clean" (fun _ ->
 Target.create "Debug" (fun _ ->
     appReferences
     |> MSBuild.runDebug id testDir "Build"
-    |> Trace.logItems "Debug-Output: "
+    |> ignore
 )
 
 Target.create "Release" (fun _ ->
     appReferences
     -- "./**/*Test.fsproj"
     |> MSBuild.runRelease id buildDir "Build" 
-    |> Trace.logItems "Release-Output: "
+    |> ignore
 )
 
 Target.create "Test" (fun _ ->
@@ -40,8 +45,8 @@ Target.create "Test" (fun _ ->
 
 open Fake.Core.TargetOperators
 
-// Build order
-"Clean"
+"Restore"
+  ==>  "Clean"
   ==> "Debug"
   ==> "Test"
   ==> "Release"
